@@ -80,8 +80,8 @@ if st.button("Generate Message"):
 
             with st.spinner("Generating your message..."):
 
-                response = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
+                    response = client.chat.completions.create(
+                    model="openai/gpt-oss-20b",
                     messages=[
                         {
                             "role": "user",
