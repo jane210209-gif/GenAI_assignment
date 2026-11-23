@@ -1,5 +1,5 @@
 import streamlit as st
-from google import genai
+from groq import Groq
 
 # Page Configuration
 st.set_page_config(
@@ -19,7 +19,7 @@ st.write(
 st.divider()
 
 # API Configuration
-api_key = st.secrets.get("GEMINI_API_KEY", "")
+api_key = st.secrets.get("GROQ_API_KEY", "")
 
 # User Input Section
 st.subheader("Enter Your Message Details")
@@ -49,18 +49,18 @@ tone = st.selectbox(
     ["Formal", "Friendly", "Polite", "Professional"]
 )
 
-# Generate Button
+# Generate Message
 if st.button("Generate Message"):
 
     if not api_key:
-        st.error("Please configure your Gemini API key.")
+        st.error("Please configure your Groq API key.")
 
     elif not purpose or not details:
         st.warning("Please enter the purpose and message details.")
 
     else:
         try:
-            client = genai.Client(api_key=api_key)
+            client = Groq(api_key=api_key)
 
             prompt = f"""
             Generate a well-written {message_type}.
@@ -80,12 +80,17 @@ if st.button("Generate Message"):
 
             with st.spinner("Generating your message..."):
 
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt
+                response = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ]
                 )
 
-            generated_message = response.text
+            generated_message = response.choices[0].message.content
 
             st.success("Message generated successfully!")
 
@@ -107,10 +112,9 @@ if st.button("Generate Message"):
         except Exception as e:
             st.error(f"Error generating message: {e}")
 
-# Footer
 st.divider()
 
 st.caption(
     "AI Professional Message Writer | "
-    "Developed using Python, Streamlit and Google Gemini"
+    "Developed using Python, Streamlit and Groq"
 )
